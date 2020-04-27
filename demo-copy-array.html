@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+        <div id="tip"></div>
+		<script src="./js/WEBGL.js"></script>
+		<!-- <script src="./js/GLTFLoader.js"></script> -->
+		<script src="./js/three.js"></script>
+		<script src="./js/controls/OrbitControls.js"></script>
+
+		<script type="module">
+            //import * as THREE from './js/three.module.js';
+            //import { GLTFLoader } from './js/GLTFLoader.js';
+            
+            var scene = new THREE.Scene();
+
+            var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+            camera.position.set(0, 0, 400);
+            camera.lookAt(0, 0, 0);
+
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.setClearColor(0xaaaaaa, 1);//背景色
+            document.body.appendChild(renderer.domElement);
+
+            //环境光
+            var ambient = new THREE.AmbientLight(0xffffff);
+            scene.add(ambient);
+
+            //轴辅助 （每一个轴的长度）
+            var object = new THREE.AxisHelper( 1500 );
+            scene.add( object );
+            
+            //材质
+            var material = new THREE.MeshLambertMaterial({
+                color: 0x00ff00,
+                side: THREE.DoubleSide,
+            });
+            var material1 = new THREE.MeshLambertMaterial({
+                color: 0xffff00,
+                side: THREE.DoubleSide,
+            });
+            var materialP = new THREE.PointsMaterial({
+                color: 0x0000ff,
+                size: 3,
+            });
+            var materialL = new THREE.LineBasicMaterial({
+                color: 0x00ffff,
+            })
+            var materialM = new THREE.MeshLambertMaterial({
+                color: 0xff00ff,
+                side: THREE.DoubleSide,
+            })
+            var materialPh = new THREE.MeshPhongMaterial({
+                color: 0x0ff0ff,
+                side: THREE.DoubleSide,
+            });
+            var materialPhong = new THREE.MeshPhongMaterial({
+                color: 0xf00fff,//三角面颜色
+                side: THREE.DoubleSide//两面可见
+            });//材质对象
+            materialPhong.wireframe = true;//线条模式渲染(查看细分数)
+
+            var box = new THREE.BoxGeometry(80, 80, 80);
+            var boxMesh = new THREE.Mesh(box, material);
+            scene.add(boxMesh);
+
+            //克隆
+            var box2 = box.clone();
+            box2.translate(100, 0, 0)
+            var boxMesh2 = new THREE.Mesh(box2, material1);
+            //boxMesh2.position.x = -100;
+            scene.add(boxMesh2);
+
+            //复制
+            var sphere = new THREE.SphereGeometry(20, 40, 40);
+            box.copy(sphere);
+
+            //网格模型克隆
+            var mesh2 = boxMesh.clone();
+            boxMesh.translateX(-80);
+            box.scale(1.5, 1.5, 1.5);
+            scene.add(mesh2);
+
+            var boxArray = new THREE.BoxGeometry(10, 10, 10);//创建一个立方体几何
+            //直线阵列
+            for(var x = 0; x< 10; x++) {
+                var mesh = new THREE.Mesh(boxArray, material);
+                mesh.position.set(0, x * 20, 0);
+                scene.add(mesh);
+            }
+
+            // 整体阵列网格
+            var object = new THREE.Object3D();
+            for(var x = 0; x< 10; x++) {
+                var mesh = new THREE.Mesh(boxArray, material1);
+                mesh.position.set(-x * 20, 0, 0);
+                object.add(mesh);
+            }
+            object.translateY(50);
+            scene.add(object);
+
+            //平面阵列
+            var boxArray1 = new THREE.BoxGeometry(10, 10, 10);//创建一个立方体几何
+            for(var x = 0; x< 10; x++) {
+                for(var y = 0; y< 10; y++) {
+                    var mesh = new THREE.Mesh(boxArray, materialM);
+                    mesh.position.set(x * 20, y * 20, -40);
+                    scene.add(mesh);
+                }
+            }
+
+            //三维阵列
+            for(var x = 0; x< 10; x++) {
+                for(var y = 0; y< 10; y++) {
+                    for(var z = 0; z< 10; z++) {
+                        var mesh = new THREE.Mesh(boxArray, materialM);
+                        mesh.position.set(-x * 20, -y * 20, -z * 20);
+                        scene.add(mesh);
+                    }
+                }
+            }
+
+
+            function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            }
+            animate();
+            //鼠标操作
+            var controls = new THREE.OrbitControls(camera, renderer.domElement);
+		</script>
+	</body>
+</html>

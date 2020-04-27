@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+        <div id="tip"></div>
+		<script src="./js/WEBGL.js"></script>
+		<!-- <script src="./js/GLTFLoader.js"></script> -->
+		<script src="./js/three.js"></script>
+		<script src="./js/controls/OrbitControls.js"></script>
+
+		<script type="module">
+            //import * as THREE from './js/three.module.js';
+            //import { GLTFLoader } from './js/GLTFLoader.js';
+            
+            var scene = new THREE.Scene();
+
+            var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+            camera.position.set(0, 0, 300);
+            camera.lookAt(0, 0, 0);
+
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.setClearColor(0xaaaaaa, 1);//背景色
+            document.body.appendChild(renderer.domElement);
+
+            //环境光
+            var ambient = new THREE.AmbientLight(0xffffff);
+            scene.add(ambient);
+
+            //轴辅助 （每一个轴的长度）
+            var object = new THREE.AxisHelper( 1500 );
+            scene.add( object );
+
+            // 纹理贴图
+            var texture = new THREE.ImageUtils.loadTexture('./js/glb.jpg');
+
+            var box = new THREE.BoxGeometry(80, 80, 80);
+            //材质
+            var material = new THREE.MeshLambertMaterial({
+                color: 0x00ff00,
+                opacity: 0.6,
+                transparent: true,
+            });
+            material.map = texture;
+            var boxMesh = new THREE.Mesh(box, material);
+            scene.add(boxMesh);
+
+            var sphere = new THREE.SphereGeometry(40, 40, 40);
+            //材质
+            var material2 = new THREE.MeshLambertMaterial({
+                color: 0x00fff0,
+            });
+            material2.opacity = 0.7;
+            material2.transparent = true;
+            material2.map = texture;
+            var sphereMesh = new THREE.Mesh(sphere, material2);
+            sphereMesh.position.x = 100;
+            scene.add(sphereMesh);
+
+            var cylinder = new THREE.CylinderGeometry(40, 40, 80, 20);
+            //材质
+            var material3 = new THREE.MeshLambertMaterial({
+                color: 0xf00ff0,
+            });
+            material3.map = texture;
+            var cylinderMesh = new THREE.Mesh(cylinder, material3);
+            cylinderMesh.position.x = -100;
+            scene.add(cylinderMesh);
+
+            //局部贴图
+            var boxJ=new THREE.BoxGeometry(100,100,100);//创建一个立方体几何对象
+            var boxMaterialJ = new THREE.MeshLambertMaterial({color:0x0000ff});//材质对象
+            var boxMeshJ=new THREE.Mesh(boxJ,boxMaterialJ);//网格模型对象
+            boxMeshJ.translateY(100);
+            scene.add(boxMeshJ);//网格模型添加到场景中
+
+            var plane = new THREE.PlaneGeometry(60,30);//矩形平面
+            var planeMaterial=new THREE.MeshLambertMaterial({//贴图通过材质添加给几何体
+                map:texture//给纹理属性map赋值
+            });//材质对象
+            var planeMesh = new THREE.Mesh(plane, planeMaterial);//纹理贴图网格模型
+            planeMesh.translateZ(50.01);//平移纹理贴图网格模型
+            planeMesh.translateY(100);
+            scene.add(planeMesh);//纹理贴图网格模型添加到场景中
+
+            //纹理映射
+            var geometryW = new THREE.Geometry(); //创建一个空几何体对象
+            /**顶点坐标(纹理映射位置)*/
+            var p1 = new THREE.Vector3(100,50,0); //顶点1坐标
+            var p2 = new THREE.Vector3(180,50,0); //顶点2坐标
+            var p3 = new THREE.Vector3(180,130,0); //顶点3坐标
+            var p4 = new THREE.Vector3(100,130,0); //顶点4坐标
+            geometryW.vertices.push(p1,p2,p3,p4); //顶点坐标添加到geometryW对象
+            /** 三角面1、三角面2*/
+            var normal = new THREE.Vector3( 0, 0, 1 ); //三角面法向量
+            var face0 = new THREE.Face3( 0, 1, 2, normal); //三角面1
+            var face1 = new THREE.Face3( 0, 2, 3, normal); //三角面2
+            geometryW.faces.push( face0,face1 ); //三角面1、2添加到几何体
+            //纹理坐标
+            var t0 = new THREE.Vector2(0, 0);
+            var t1 = new THREE.Vector2(1, 0);
+            var t2 = new THREE.Vector2(1, 1);
+            var t3 = new THREE.Vector2(0, 1);
+            var uv1 = [t0, t1, t2];
+            var uv2 = [t0, t2, t3];
+            geometryW.faceVertexUvs[0].push(uv1, uv2);
+            var wMaterial=new THREE.MeshLambertMaterial({//贴图通过材质添加给几何体
+                map: texture,//给纹理属性map赋值
+                side: THREE.DoubleSide,
+            });//材质对象
+            var wMesh = new THREE.Mesh(geometryW, wMaterial);
+            scene.add(wMesh);
+
+            
+
+            function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            }
+            animate();
+            //鼠标操作
+            var controls = new THREE.OrbitControls(camera, renderer.domElement);
+		</script>
+	</body>
+</html>

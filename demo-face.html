@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+        <div id="tip"></div>
+		<script src="./js/WEBGL.js"></script>
+		<!-- <script src="./js/GLTFLoader.js"></script> -->
+		<script src="./js/three.js"></script>
+		<script src="./js/controls/OrbitControls.js"></script>
+
+		<script type="module">
+            //import * as THREE from './js/three.module.js';
+            //import { GLTFLoader } from './js/GLTFLoader.js';
+            
+            var scene = new THREE.Scene();
+
+            var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+            camera.position.set(0, 0, 50);
+            camera.lookAt(0, 0, 0);
+
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.setClearColor(0xaaaaaa, 1);//背景色
+            document.body.appendChild(renderer.domElement);
+
+            //环境光
+            var ambient = new THREE.AmbientLight(0xffffff);
+            scene.add(ambient);
+            
+            //线条对象
+            var geometry = new THREE.Geometry();
+            var p1 = new THREE.Vector3(10, 0, 0);
+            var p2 = new THREE.Vector3(0, 20, 0);
+            geometry.vertices.push(p1, p2);
+            var color1 = new THREE.Color(0xff0000);
+            var color2 = new THREE.Color(0x0000ff);
+            var material = new THREE.LineBasicMaterial({
+                // 单色
+                //color: 0xff0000,
+                //彩色
+                vertexColors: THREE.VertexColors,
+            });
+            geometry.colors.push(color1, color2);
+            var line = new THREE.Line(geometry, material);
+            scene.add(line);
+
+            //点模型对象
+            var pointGeometry = new THREE.Geometry();
+            var pp1 = new THREE.Vector3(10, 0, 0);
+            var pp2 = new THREE.Vector3(10, -20, 0);
+            var pp3 = new THREE.Vector3(0, 10, 0);
+            pointGeometry.vertices.push(pp1, pp2, pp3);
+            var pointMaterial = new THREE.PointsMaterial({
+                color: 0x0000ff,
+                size: 5.0
+            });
+            var points = new THREE.Points(pointGeometry, pointMaterial);
+            scene.add(points);
+            
+            //三角面
+            var faceGeometry = new THREE.Geometry();
+            var pc1 = new THREE.Vector3(-10, 0, 0);
+            var pc2 = new THREE.Vector3(-10, -20, 0);
+            var pc3 = new THREE.Vector3(10, -10, 0);
+            faceGeometry.vertices.push(pc1, pc2, pc3);
+            var normal = new THREE.Vector3(0, 0, 1);
+            var face = new THREE.Face3(0, 1, 2, normal);
+            var colorF1 = new THREE.Color(0xff0000);
+            var colorF2 = new THREE.Color(0x00ff00);
+            var colorF3 = new THREE.Color(0x0000ff);
+            face.vertexColors.push(colorF1, colorF2, colorF3);
+            faceGeometry.faces.push(face);
+            var faceMaterial = new THREE.MeshLambertMaterial({
+                // 单色
+                //color: 0x00ff00,
+                //彩色
+                vertexColors: THREE.VertexColors,
+                side: THREE.DoubleSide,
+            });
+            var faceMesh = new THREE.Mesh(faceGeometry, faceMaterial);
+            scene.add(faceMesh);
+
+            //矩形平面（两个三角面）
+            var face4Geometry = new THREE.Geometry();
+            var pc41 = new THREE.Vector3(-20, 20, 0);
+            var pc42 = new THREE.Vector3(-10, 20, 0);
+            var pc43 = new THREE.Vector3(-10, 10, 0);
+            var pc44 = new THREE.Vector3(-20, 10, 0);
+            face4Geometry.vertices.push(pc41, pc42, pc43, pc44);
+            var normal4 = new THREE.Vector3(0, 0, 1);
+            var face0 = new THREE.Face3(0, 1, 2, normal);
+            var face1 = new THREE.Face3(0, 2, 3, normal);
+            face4Geometry.faces.push(face0, face1);
+            var face4Material = new THREE.MeshLambertMaterial({
+                color: 0x38ffff,
+                side: THREE.DoubleSide,
+            });
+            var face4Mesh = new THREE.Mesh(face4Geometry, face4Material);
+            scene.add(face4Mesh);
+
+            //立方体
+            var box =new THREE.BoxGeometry(10, 10, 10, 3, 4, 5);
+            var boxMaterial = new THREE.MeshLambertMaterial({color: 0xf0ff0f});//材质对象
+            var boxMesh = new THREE.Mesh(box, boxMaterial);//网格模型对象
+
+            var boxLineMaterial = new THREE.LineBasicMaterial({color: 0x0000ff});
+            var boxLineMesh = new THREE.Line(box, boxLineMaterial);//网格模型对象
+
+            var boxPointMaterial = new THREE.PointsMaterial({color: 0x00ff00, size: 2.0});
+            var boxPointMesh = new THREE.Points(box, boxPointMaterial);//网格模型对象
+
+            scene.add(boxMesh, boxLineMesh, boxPointMesh);//网格模型添加到场景中
+
+
+            function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            }
+            animate();
+            //鼠标操作
+            var controls = new THREE.OrbitControls(camera, renderer.domElement);
+		</script>
+	</body>
+</html>

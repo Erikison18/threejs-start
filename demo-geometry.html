@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+        <div id="tip"></div>
+		<script src="./js/WEBGL.js"></script>
+		<!-- <script src="./js/GLTFLoader.js"></script> -->
+		<script src="./js/three.js"></script>
+		<script src="./js/controls/OrbitControls.js"></script>
+        <script src="https://johnson2heng.github.io/three.js-demo/lib/threebsp.js"></script>
+
+		<script type="module">
+            //import * as THREE from './js/three.module.js';
+            //import { GLTFLoader } from './js/GLTFLoader.js';
+            
+            var scene = new THREE.Scene();
+
+            var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+            camera.position.set(0, 0, 300);
+            camera.lookAt(0, 0, 0);
+
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.setClearColor(0xaaaaaa, 1);//背景色
+            document.body.appendChild(renderer.domElement);
+
+            //环境光
+            var ambient = new THREE.AmbientLight(0xffffff);
+            scene.add(ambient);
+
+            //轴辅助 （每一个轴的长度）
+            var object = new THREE.AxisHelper( 1500 );
+            scene.add( object );
+            
+            var material = new THREE.MeshLambertMaterial({
+                color: 0x00ff00,
+                side: THREE.DoubleSide,
+            });
+            var material1 = new THREE.MeshLambertMaterial({
+                color: 0xff0000,
+                side: THREE.DoubleSide,
+            });
+
+            //立方体
+            var box = new THREE.BoxGeometry(20, 20, 20);
+            var boxMesh = new THREE.Mesh(box, material1);
+            scene.add(boxMesh);
+
+            //球体
+            var sphere = new THREE.SphereGeometry(20, 40, 40);
+            var sphereMesh = new THREE.Mesh(sphere, material);
+            sphereMesh.position.x = 40;
+            scene.add(sphereMesh);
+
+            //圆柱
+            //圆台(顶部半径20，底部半径40，高度100，圆周细分数40)
+            var cylinder = new THREE.CylinderGeometry(10, 30, 50, 40);
+            var cylinderMesh = new THREE.Mesh(cylinder, material);
+            cylinderMesh.position.x = -40;
+            scene.add(cylinderMesh);
+
+            //多面体
+            //立方体顶点位置坐标
+            var vertices = [
+                -1,-1,-1,    1,-1,-1,    1, 1,-1,    -1, 1,-1,
+                -1,-1, 1,    1,-1, 1,    1, 1, 1,    -1, 1, 1,
+            ];
+            //立方体顶点索引，三个顶点定义一个三角面
+            var indices = [
+                2,1,0,    0,3,2,
+                0,4,7,    7,3,0,
+                0,1,5,    5,4,0,
+                1,2,6,    6,5,1,
+                2,3,7,    7,6,2,
+                4,5,6,    6,7,4,
+            ];
+            var polyhedron = new THREE.PolyhedronGeometry(vertices, indices,  Math.sqrt(3) * 20 / 2);
+            var polyhedronMesh = new THREE.Mesh(polyhedron, material);
+            polyhedronMesh.position.y = 30;
+            scene.add(polyhedronMesh);
+
+
+            //四面锥
+            var vertices1 = [
+                0, 1, 0,
+                1, -1, 1,     -1, -1, 1, 
+                1, -1, -1,    -1, -1, -1,
+            ];
+            //立方体顶点索引，三个顶点定义一个三角面
+            var indices1 = [
+                0, 1, 2,   0, 2, 3,   0, 3, 4,   0, 4, 1,
+                1, 2, 3,   2, 3, 4,
+            ];
+            var polyhedron1 = new THREE.PolyhedronGeometry(vertices1, indices1,  Math.sqrt(3) * 20 / 2);
+            var polyhedron1Mesh = new THREE.Mesh(polyhedron1, material);
+            polyhedron1Mesh.position.y = -30;
+            scene.add(polyhedron1Mesh);
+
+            //矩形平面
+            var plane = new THREE.PlaneGeometry(15, 40);
+            var planeMesh = new THREE.Mesh(plane, material1);
+            planeMesh.position.y = 30;
+            planeMesh.position.x = 80;
+            scene.add(planeMesh);
+
+            // 圆平面
+            var circle = new THREE.CircleGeometry(20, 40, 0, 3 * Math.PI / 4)
+            var circleMesh = new THREE.Mesh(circle, material1);
+            circleMesh.position.y = -30;
+            circleMesh.position.x = 80;
+            scene.add(circleMesh);
+            var circle1 = new THREE.CircleGeometry(20, 5); //正5边形
+            var circle1Mesh = new THREE.Mesh(circle1, material);
+            circle1Mesh.position.y = -60;
+            circle1Mesh.position.x = 80;
+            scene.add(circle1Mesh);
+
+            var materialP = new THREE.PointsMaterial({
+                color: 0x0000ff,
+                size: 3,
+            });
+            var materialL = new THREE.LineBasicMaterial({
+                color: 0x00ffff,
+            })
+            var materialM = new THREE.MeshLambertMaterial({
+                color: 0xff00ff,
+                side: THREE.DoubleSide,
+            })
+            //圆弧
+            var shape = new THREE.Shape();
+            shape.absarc(0, 0, 20, 0.5*Math.PI, 1.8*Math.PI);
+            var shapeGeometry = new THREE.ShapeGeometry(shape);
+            var creatShapeGeometry = shape.createSpacedPointsGeometry(10);
+            //var shapePMesh = new THREE.Points(shapeGeometry, materialP); //点模式
+            var shapePMesh = new THREE.Points(creatShapeGeometry, materialP); //点模式, 设置细分数
+            shapePMesh.position.y = 30;
+            shapePMesh.position.x = -80;
+            scene.add(shapePMesh);
+            //var shapeLMesh = new THREE.Line(shapeGeometry, materialL); //线模式
+            var shapeLMesh = new THREE.Line(creatShapeGeometry, materialL); //线模式，设置细分数
+            shapeLMesh.position.y = 0;
+            shapeLMesh.position.x = -80;
+            scene.add(shapeLMesh);
+            var shapeMMesh = new THREE.Mesh(shapeGeometry, materialM); //面模式
+            //var shapeMMesh = new THREE.Mesh(creatShapeGeometry, materialM); //面模式，设置细分数
+            shapeMMesh.position.y = -30;
+            shapeMMesh.position.x = -80;
+            scene.add(shapeMMesh);
+
+            var materialPh = new THREE.MeshPhongMaterial({
+                color: 0x0ff0ff,
+                side: THREE.DoubleSide,
+            });
+            // 拉伸网格模型
+            var shape100 = new THREE.Shape();
+            shape100.moveTo(0, 0);
+            shape100.lineTo(0, 15);
+            shape100.lineTo(15, 15);
+            shape100.lineTo(15, 0);
+            shape100.lineTo(0, 0);
+            var extrudeGeometry = new THREE.ExtrudeGeometry(
+                shape100,
+                {
+                    amount: 80,
+                    bevelEnabled: false,
+                }
+            );
+            var extrudeMesh = new THREE.Mesh(extrudeGeometry, materialPh);//网格模式
+            extrudeMesh.position.y = 30;
+            extrudeMesh.position.x = 30;
+            scene.add(extrudeMesh);
+            var extrudePMesh = new THREE.Points(extrudeGeometry, materialP);//点模式
+            extrudePMesh.position.y = 60;
+            extrudePMesh.position.x = 30;
+            scene.add(extrudePMesh);
+            //扫描网格模型
+            var curve = new THREE.SplineCurve3([
+                new THREE.Vector3(-50, -50, -50),
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(-10, 50, 50),
+                new THREE.Vector3(-10, 0, 100),
+                new THREE.Vector3(-10, 0, 140),
+            ])
+            var extrudeGeometry1 = new THREE.ExtrudeGeometry(
+                shape100,
+                {
+                    bevelEnabled: false,
+                    extrudePath: curve,//扫描轨迹
+                    steps: 50,
+                }
+            )
+            var extrude1Mesh = new THREE.Mesh(extrudeGeometry1, materialPh);//网格模式
+            //extrude1Mesh.position.y = 80;
+            scene.add(extrude1Mesh);
+
+            //管道网格模型
+            var tubeGeometry= new THREE.TubeGeometry(curve, 40, 2, 8, false);
+            var tubeMesh = new  THREE.Mesh(tubeGeometry, materialPh);
+            tubeMesh.position.y = 50;
+            scene.add(tubeMesh);
+
+            //平面网格模型
+            var plane = function (u, v, target) {
+                var width = 50, height = 50;
+                var x = u * width;
+                var y = v * height;
+                var z = 0;
+                //return new THREE.Vector3(x, y, z);
+                target.set( x, y, z );
+            }
+            var paraGeometry = new THREE.ParametricGeometry(plane, 25, 25);
+            var materialPhong = new THREE.MeshPhongMaterial({
+                color: 0xf00fff,//三角面颜色
+                side: THREE.DoubleSide//两面可见
+            });//材质对象
+            materialPhong.wireframe = true;//线条模式渲染(查看细分数)
+            var paraMesh = new THREE.Mesh(paraGeometry, materialPhong);
+            //paraMesh.position.y = 50;
+            //paraMesh.position.x = -50;
+            scene.add(paraMesh);
+            
+            var paraboloid= function (u, v, target) {
+                var k = 100;//x、y取值范围
+                var a = 0.2;//旋转抛物面焦点
+                var x = (u-0.5)*k;
+                var y = (v-0.5)*k;
+                var z = Math.pow(a,2)*(Math.pow(x,2)+Math.pow(y,2));
+                //return new THREE.Vector3(x,y,z);
+                target.set( x, y, -z );
+            }
+            var paraboloidGeometry = new THREE.ParametricGeometry(paraboloid, 50, 50);
+            var paraboloidMesh = new THREE.Mesh(paraboloidGeometry, materialPhong);
+            paraboloidMesh.position.y = 80;
+            paraboloidMesh.position.x = -80;
+            scene.add(paraboloidMesh);
+
+            //旋转网格模型
+            var pointsR = [
+                new THREE.Vector2(20, 30),
+                new THREE.Vector2(10, 0),
+                new THREE.Vector2(20, -30),
+            ];
+            var latheGeometry = new THREE.LatheGeometry(pointsR, 50);
+            var latheMesh = new THREE.Mesh(latheGeometry, materialPhong);
+            latheMesh.position.x = -130;
+            scene.add(latheMesh);
+
+            var shape300 = new THREE.Shape();
+            shape300.splineThru(pointsR);
+            var splinePoints = shape.getPoints(10);
+            var lathe1Geometry = new THREE.LatheGeometry(splinePoints, 50);
+            var lathe1Mesh = new THREE.Mesh(lathe1Geometry, materialPhong);
+            lathe1Mesh.position.x = -130;
+            lathe1Mesh.position.y = -70;
+            scene.add(lathe1Mesh);
+
+            //几何布尔运算
+            var boolC = new THREE.CylinderGeometry(40, 40, 5, 40);
+            var boolB = new THREE.BoxGeometry(30, 5, 30);
+            var boolCMesh = new THREE.Mesh(boolC, materialPhong);
+            var boolBMesh = new THREE.Mesh(boolB, materialPhong);
+            var boolCBSP = new ThreeBSP(boolCMesh);
+            var boolBBSP = new ThreeBSP(boolBMesh);
+            var result = boolCBSP.subtract(boolBBSP);
+            var resultMesh = result.toMesh();
+            resultMesh.position.x = 100;
+            scene.add(resultMesh);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                renderer.render(scene, camera);
+            }
+            animate();
+            //鼠标操作
+            var controls = new THREE.OrbitControls(camera, renderer.domElement);
+		</script>
+	</body>
+</html>
