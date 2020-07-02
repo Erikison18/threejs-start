@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My second three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<div id="tip"></div>
+		<script src="./js/three.js"></script>
+		<script src="./js/controls/OrbitControls.js"></script>
+		<script>
+            var scene = new THREE.Scene();
+
+			var axisHelper = new THREE.AxisHelper(1250);
+			scene.add(axisHelper);
+
+            var geometry = new THREE.BoxGeometry(100, 100, 200);
+            var material = new THREE.MeshLambertMaterial({ 
+                color: 0x0000ff,
+            });
+            var mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+			var geometryS = new THREE.SphereGeometry(60, 40, 40);
+			var materialS = new THREE.MeshLambertMaterial({ 
+                color: 0x00ff00,
+				opacity: 0.7,
+				transparent: true,
+            });
+            var meshS = new THREE.Mesh(geometryS, materialS);
+			meshS.position.x = 150;
+            scene.add(meshS);
+
+			var geometryC = new THREE.CylinderGeometry(50, 50, 100, 25);
+			//var materialC = new THREE.MeshLambertMaterial({ 
+              //  color: 0xff0000,
+            //});
+			//var materialC = new THREE.MeshStandardMaterial({
+			var materialC = new THREE.MeshPhongMaterial({ 
+                color: 0xff0000,
+				specular: 0x4488ee,
+				shininess: 12,
+            });
+            var meshC = new THREE.Mesh(geometryC, materialC);
+			meshC.position.y = 150;
+            scene.add(meshC);
+
+			var point = new THREE.PointLight(0xffffff);
+			point.position.set(400, 200, 300);
+			scene.add(point);
+
+			var point1 = new THREE.PointLight(0xffffff);
+			point1.position.set(-400, -200, -300);
+			scene.add(point1);
+
+			var ambient = new THREE.AmbientLight(0x444444);
+			scene.add(ambient);
+
+			var width = window.innerWidth;
+			var height = window.innerHeight;
+			var k = width / height;
+			var s = 200;
+			var camera = new THREE.OrthographicCamera(-s * k, s * k, s, -s, 1, 1000);
+			camera.position.set(200, 300, 200);
+			camera.lookAt(scene.position);
+
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize(width, height);
+			renderer.setClearColor(0xb9d3ff, 1);
+			document.body.appendChild(renderer.domElement);
+
+			renderer.render(scene, camera);
+
+			var T0 = new Date();
+			function render() {
+				var T1 = new Date();
+				var t = T1 - T0;
+				T0 = T1;
+				requestAnimationFrame(render);
+				renderer.render(scene, camera);
+				mesh.rotateY(0.001*t);
+			}
+			render();
+			//setInterval("render()", 20);
+
+			var controls = new THREE.OrbitControls(camera, renderer.domElement);
+			//controls.addEventListener('change', render);
+
+		</script>
+	</body>
+</html>
