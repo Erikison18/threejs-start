@@ -268,6 +268,41 @@
 			mesh7.position.y = -120;
             scene.add(mesh7);
 
+			var geometry8 = new THREE.SphereGeometry(100, 25, 25); //创建一个球体几何对象
+			// 创建一个点材质对象
+			var material8 = new THREE.PointsMaterial({
+				color: 0x0000ff, //颜色
+				size: 3, //点渲染尺寸
+			});
+			//点模型对象  参数：几何体  点材质
+			var point8 = new THREE.Points(geometry8, material8);
+			point8.position.x = -250;
+			scene.add(point8); //网格模型添加到场景中
+			// 直线基础材质对象
+			var material8l = new THREE.LineBasicMaterial({
+				color: 0x0000ff
+			});
+			var material8d = new THREE.LineDashedMaterial({
+				color: 0xf000ff,
+				dashSize: 10,//显示线段的大小。默认为3。
+				gapSize: 5,//间隙的大小。默认为1
+			});
+			var line8 = new THREE.Line(geometry8, material8d); //线模型对象
+			line8.computeLineDistances();
+			line8.position.x = -250;
+			line8.position.y = -250;
+			scene.add(line8); //点模型添加到场景中
+			var material8p = new THREE.MeshPhongMaterial({
+				color: 0xff00f0,
+				specular:0x444444,//高光部分的颜色
+				shininess:20,//高光部分的亮度，默认30
+				side: THREE.DoubleSide,
+			});
+			var mesh8 = new THREE.Mesh(geometry8, material8p);
+			//mesh8.position.x = -250;
+			//mesh8.position.y = 250;
+			scene.add(mesh8); 
+
 			var width = window.innerWidth;
 			var height = window.innerHeight;
 			var k = width / height;

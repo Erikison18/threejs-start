@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My three three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<div id="tip"></div>
+		<script src="./js/three.js"></script>
+		<script src="./js/controls/OrbitControls.js"></script>
+		<script>
+            var scene = new THREE.Scene();
+
+			var axisHelper = new THREE.AxisHelper(1250);
+			scene.add(axisHelper);
+
+			var ambient = new THREE.AmbientLight(0x444444);
+			scene.add(ambient);
+
+			var point = new THREE.PointLight(0xff00000);
+			point.position.set(400, 300, 200);
+			//scene.add(point);
+			var sphereSize = 100;
+			var pointLightHelper = new THREE.PointLightHelper(point, sphereSize);
+			scene.add(pointLightHelper);
+
+			var geometry = new THREE.BoxGeometry(100, 100, 100);
+			var material = new THREE.MeshPhongMaterial({
+			//var material = new THREE.MeshLambertMaterial({
+				color: 0xffffff,
+			});
+			var mesh = new THREE.Mesh(geometry, material);
+			mesh.castShadow = true;
+			mesh.receiveShadow = true;
+			scene.add(mesh);
+
+			//创建一个平面几何体作为投影面
+			var planeGeometry = new THREE.PlaneGeometry(10000, 10000);
+			var planeMaterial = new THREE.MeshPhongMaterial({
+				color: 0x999999
+			});
+			// 平面网格模型作为投影面
+			var planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+			planeMesh.rotateY(-Math.PI / 2); //旋转网格模型
+			planeMesh.position.x= 100;
+			planeMesh.receiveShadow = true;
+			scene.add(planeMesh); //网格模型添加到场景中
+			var planeMesh1 = new THREE.Mesh(planeGeometry, planeMaterial);
+			planeMesh1.rotateX(-Math.PI / 2); //旋转网格模型
+			planeMesh1.position.y= -100;
+			planeMesh1.receiveShadow = true;
+			scene.add(planeMesh1); //网格模型添加到场景中
+
+			var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+			directionalLight.position.set(-100, 0, 0);
+			directionalLight.target = mesh;
+			directionalLight.castShadow = true;
+			directionalLight.shadow.camera.near = 0.5;
+			directionalLight.shadow.camera.far = 400;
+			directionalLight.shadow.camera.top = 200;
+			directionalLight.shadow.camera.left = -150;
+			directionalLight.shadow.camera.right = 150;
+			directionalLight.shadow.camera.bottom = -200;
+			directionalLight.shadow.mapSize.set(1024,1024);
+			scene.add(directionalLight);
+			var directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 10);
+			scene.add(directionalLightHelper);
+			let shadowCameraHelper = new THREE.CameraHelper( directionalLight.shadow.camera );
+			//scene.add( shadowCameraHelper );
+
+			var spotLight = new THREE.SpotLight(0x00ff00, 2);
+			spotLight.castShadow = true;
+			spotLight.angle = 0.3;
+			spotLight.penumbra = 0.2;
+			spotLight.decay = 2;
+			spotLight.distance = 1500;
+			spotLight.position.set(0, 500, 0);
+			spotLight.angle = Math.PI / 18;
+			spotLight.shadow.camera.near = 1;
+			spotLight.shadow.camera.far = 500;
+			spotLight.shadow.camera.fov = 90;
+			scene.add(spotLight);
+			var spotLightHelper = new THREE.SpotLightHelper(spotLight, 0x00ffff);
+			scene.add(spotLightHelper);
+			let shadowCameraHelper1 = new THREE.CameraHelper( spotLight.shadow.camera );
+			//scene.add( shadowCameraHelper1 );
+
+
+
+			// 头部网格模型和组
+			var headMesh = sphereMesh(10, 0, 0, 0);
+			headMesh.name = "脑壳"
+			var leftEyeMesh = sphereMesh(1, 8, 5, 4);
+			leftEyeMesh.name = "左眼"
+			var rightEyeMesh = sphereMesh(1, 8, 5, -4);
+			rightEyeMesh.name = "右眼"
+			var headGroup = new THREE.Group();
+			headGroup.name = "头部"
+			headGroup.add(headMesh, leftEyeMesh, rightEyeMesh);
+			// 身体网格模型和组
+			var neckMesh = cylinderMesh(3, 10, 0, -15, 0);
+			neckMesh.name = "脖子"
+			var bodyMesh = cylinderMesh(14, 30, 0, -35, 0);
+			bodyMesh.name = "腹部"
+			var leftLegMesh = cylinderMesh(4, 60, 0, -80, -7);
+			leftLegMesh.name = "左腿"
+			var rightLegMesh = cylinderMesh(4, 60, 0, -80, 7);
+			rightLegMesh.name = "右腿"
+			var legGroup = new THREE.Group();
+			legGroup.name = "腿"
+			legGroup.add(leftLegMesh, rightLegMesh);
+			var bodyGroup = new THREE.Group();
+			bodyGroup.name = "身体"
+			bodyGroup.add(neckMesh, bodyMesh, legGroup);
+			// 人Group
+			var personGroup = new THREE.Group();
+			personGroup.name = "人"
+			personGroup.add(headGroup, bodyGroup)
+			personGroup.translateY(100);
+			personGroup.translateZ(100);
+			personGroup.rotateY(-Math.PI / 4);
+			scene.add(personGroup);
+
+			scene.traverse(function(obj) {
+				if (obj.type === "Group") {
+					console.log(obj.name);
+				}
+				if (obj.type === "Mesh") {
+					console.log('  ' + obj.name);
+					//obj.material.color.set(0xffff00);
+				}
+				if (obj.name === "左眼" | obj.name === "右眼") {
+					obj.material.color.set(0x00ffff)
+				}
+				// 打印id属性
+				console.log(obj.id);
+				// 打印该对象的父对象
+				console.log(obj.parent);
+				// 打印该对象的子对象
+				console.log(obj.children);
+			})
+
+			console.log(scene);
+			var idNode = scene.getObjectById ( 35 );
+			console.log(idNode, "idNode");
+			var nameNode = scene.getObjectByName ( "左腿" );
+			nameNode.material.color.set(0xff0000);
+
+
+			var worldPosition = new THREE.Vector3();
+			// 执行getWorldPosition方法把模型的世界坐标保存到参数worldPosition中
+			personGroup.getWorldPosition(worldPosition);
+			console.log('-----------------');
+			console.log(personGroup.position);
+			console.log(worldPosition);
+
+
+			var mesh9 =  sphereMesh(20, 0, 0, 0);
+			// mesh的本地坐标设置为(50, 0, 0)
+			mesh9.position.set(-80, 0, 0);
+			var group9 = new THREE.Group();
+			// group本地坐标设置和mesh一样设置为(50, 0, 0)
+			// mesh父对象设置position会影响得到mesh的世界坐标
+			group9.position.set(-80, 0, 0);
+			group9.add(mesh9);
+			scene.add(group9);
+			// .position属性获得本地坐标
+			console.log('本地坐标',mesh9.position);
+			// getWorldPosition()方法获得世界坐标
+			//该语句默认在threejs渲染的过程中执行,如果渲染之前想获得世界矩阵属性、世界位置属性等属性，需要通过代码更新
+			scene.updateMatrixWorld(true);
+			var worldPosition = new THREE.Vector3();
+			mesh9.getWorldPosition(worldPosition);
+			console.log('世界坐标',worldPosition);
+
+
+
+			// 球体网格模型创建函数
+			function sphereMesh(R, x, y, z) {
+			var geometry = new THREE.SphereGeometry(R, 25, 25); //球体几何体
+			var material = new THREE.MeshPhongMaterial({
+				color: 0x0000ff
+			}); //材质对象Material
+			var mesh = new THREE.Mesh(geometry, material); // 创建网格模型对象
+			mesh.position.set(x, y, z);
+			return mesh;
+			}
+			// 圆柱体网格模型创建函数
+			function cylinderMesh(R, h, x, y, z) {
+			var geometry = new THREE.CylinderGeometry(R, R, h, 25, 25); //球体几何体
+			var material = new THREE.MeshPhongMaterial({
+				color: 0x0000ff
+			}); //材质对象Material
+			var mesh = new THREE.Mesh(geometry, material); // 创建网格模型对象
+			mesh.position.set(x, y, z);
+			return mesh;
+			}
+
+
+
+			var width = window.innerWidth;
+			var height = window.innerHeight;
+			var k = width / height;
+			var s = 200;
+			var camera = new THREE.OrthographicCamera(-s * k, s * k, s, -s, 1, 1000);
+			camera.position.set(200, 300, 200);
+			camera.lookAt(scene.position);
+
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize(width, height);
+			//renderer.setClearColor(0xb9d3ff, 1);
+			document.body.appendChild(renderer.domElement);
+			renderer.shadowMap.enabled = true; //开启阴影效果
+			renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+			renderer.render(scene, camera);
+
+			var T0 = new Date();
+			function render() {
+				var T1 = new Date();
+				var t = T1 - T0;
+				T0 = T1;
+				//requestAnimationFrame(render);
+				renderer.render(scene, camera);
+			}
+			render();
+
+			var controls = new THREE.OrbitControls(camera, renderer.domElement);
+			controls.addEventListener('change', render);
+		</script>
+	</body>
+</html>
