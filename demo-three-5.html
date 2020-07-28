@@ -20,14 +20,208 @@
 
 			var point = new THREE.PointLight(0xffffff);
 			point.position.set(400, 200, 300);
-			scene.add(point);
+			//scene.add(point);
 
-			var point1 = new THREE.PointLight(0xffffff);
-			point1.position.set(-400, -200, -300);
-			scene.add(point1);
-
-			var ambient = new THREE.AmbientLight(0x444444);
+			var ambient = new THREE.AmbientLight(0xffffff);
 			scene.add(ambient);
+
+
+			// 纹理贴图
+           	var textureLoader = new THREE.TextureLoader();
+			// 执行load方法，加载纹理贴图成功后，返回一个纹理对象Texture
+			textureLoader.load('./js/earth.jpg', function(texture) {
+				var sphere = new THREE.SphereGeometry(40, 40, 40);
+				//材质
+				var material = new THREE.MeshPhongMaterial({
+					map: texture,
+				});
+				var sphereMesh = new THREE.Mesh(sphere, material);
+				sphereMesh.position.z = 100;
+				scene.add(sphereMesh);
+
+				/**
+				* 遍历uv坐标
+				*/
+				//sphere.faceVertexUvs[0].forEach(elem => {
+					//elem.forEach(Vector2 => {
+						// 所有的UV坐标全部设置为一个值
+						//console.log(Vector2);
+						//Vector2.set(0.5, 0.5);
+					//});
+				//});
+
+
+				// 矩形平面 设置细分数4,4
+				var geometry = new THREE.PlaneGeometry(204, 102, 4, 4);
+				/**
+				* 局部三角面显示完整纹理贴图
+				*/
+				var t0 = new THREE.Vector2(0, 1); //图片左下角
+				var t1 = new THREE.Vector2(0, 0); //图片右下角
+				var t2 = new THREE.Vector2(1, 0); //图片右上角
+				var t3 = new THREE.Vector2(1, 1); //图片左上角
+				var uv1 = [t0, t1, t3]; //选中图片一个三角区域像素——用于映射到一个三角面
+				var uv2 = [t1, t2, t3]; //选中图片一个三角区域像素——用于映射到一个三角面
+				// 设置第五、第六个三角形面对应的纹理坐标
+				geometry.faceVertexUvs[0][4] = uv1
+				geometry.faceVertexUvs[0][5] = uv2
+				var mesh = new THREE.Mesh(geometry, material);
+				mesh.position.x = 150;
+				scene.add(mesh);
+
+				var geometry1 = new THREE.BufferGeometry(); //声明一个空几何体对象
+				//类型数组创建顶点位置position数据
+				var vertices = new Float32Array([
+					0, 0, 0, //顶点1坐标
+					80, 0, 0, //顶点2坐标
+					80, 80, 0, //顶点3坐标
+					0, 80, 0, //顶点4坐标
+				]);
+				// 创建属性缓冲区对象
+				var attribue = new THREE.BufferAttribute(vertices, 3); //3个为一组
+				// 设置几何体attributes属性的位置position属性
+				geometry1.attributes.position = attribue
+				var normals = new Float32Array([
+					0, 0, 1, //顶点1法向量
+					0, 0, 1, //顶点2法向量
+					0, 0, 1, //顶点3法向量
+					0, 0, 1, //顶点4法向量
+				]);
+				// 设置几何体attributes属性的位置normal属性
+				geometry1.attributes.normal = new THREE.BufferAttribute(normals, 3); //3个为一组,表示一个顶点的xyz坐标
+				// Uint16Array类型数组创建顶点索引数据
+				var indexes = new Uint16Array([
+					0, 1, 2, 0, 2, 3,
+				])
+				// 索引数据赋值给几何体的index属性
+				geometry1.index = new THREE.BufferAttribute(indexes, 1); //1个为一组
+				/**纹理坐标*/
+				var uvs = new Float32Array([
+					0,0, //图片左下角
+					1,0, //图片右下角
+					1,1, //图片右上角
+					0,1, //图片左上角
+				]);
+				// 设置几何体attributes属性的位置normal属性
+				geometry1.attributes.uv = new THREE.BufferAttribute(uvs, 2); //2个为一组,表示一个顶点的纹理坐标
+				var mesh1 = new THREE.Mesh(geometry1, material);
+				mesh1.position.x = -150;
+				scene.add(mesh1);
+
+				var geometry2 = new THREE.BoxGeometry(100, 100, 100); //立方体
+				// 材质对象1
+				var material_1 = new THREE.MeshPhongMaterial({
+					color: 0xffff3f
+				})
+				// 材质对象2
+				var material_2 = new THREE.MeshLambertMaterial({
+					map: texture, // 设置纹理贴图
+				});
+				// 设置材质数组
+				var materialArr = [material_2, material_1, material_1, material_1, material_1, material_1];
+				// 设置数组材质对象作为网格模型材质参数
+				var mesh2 = new THREE.Mesh(geometry2, materialArr); //网格模型对象Mesh
+				mesh2.position.y = 150;
+				console.log(geometry2.faces);
+				geometry2.faces.forEach(elem => {
+					console.log(elem.materialIndex);
+				});
+				scene.add(mesh2);
+
+				var geometry3 = new THREE.PlaneGeometry(204, 102, 4, 4); //矩形平面
+				// 材质对象1
+				var material13 = new THREE.MeshPhongMaterial({
+					color: 0xffff3f,
+					// wireframe:true,
+				})
+				// 材质对象2
+				var material23 = new THREE.MeshPhongMaterial({
+					color: 0x0000ff,
+					// wireframe:true,
+				}); //材质对象Material
+				// 数组材质
+				var materialArr3 = [material13, material23];
+				// 设置几何体的材质索引(对于PlaneGeometry而言所有Face3的材质索引默认0)
+				geometry3.faces[4].materialIndex = 1;
+				geometry3.faces[5].materialIndex = 1;
+				var mesh3 = new THREE.Mesh(geometry3, materialArr3); //网格模型对象Mesh
+				mesh3.position.y = -150;
+				scene.add(mesh3);
+				
+				render();
+			});
+
+			textureLoader.load('./js/crate.gif', function(texture) { 
+				//材质
+				let material = new THREE.MeshLambertMaterial({
+					map: texture,
+				});
+				texture.wrapS = THREE.RepeatWrapping;
+				texture.wrapT = THREE.RepeatWrapping;
+				// uv两个方向纹理重复数量
+				texture.repeat.set(4, 2);
+				texture.offset = new THREE.Vector2(0.5, 0);
+				// 设置纹理旋转角度
+				texture.rotation = Math.PI/16;
+				// 设置纹理的旋转中心，默认(0,0)
+				texture.center.set(0.5,0.5);
+
+				let geometry = new THREE.PlaneGeometry(204, 102, 4, 4);
+				/**
+				* 局部三角面显示完整纹理贴图
+				*/
+				let t0 = new THREE.Vector2(0, 1); //图片左下角
+				let t1 = new THREE.Vector2(0, 0); //图片右下角
+				let t2 = new THREE.Vector2(1, 0); //图片右上角
+				let t3 = new THREE.Vector2(1, 1); //图片左上角
+				let uv1 = [t0, t1, t3]; //选中图片一个三角区域像素——用于映射到一个三角面
+				let uv2 = [t1, t2, t3]; //选中图片一个三角区域像素——用于映射到一个三角面
+				let mesh = new THREE.Mesh(geometry, material);
+				mesh.position.x = 200;
+				mesh.position.y = 150;
+				scene.add(mesh);
+
+				render();
+			});
+
+			textureLoader.load('./js/normal.jpg', function(texture) { 
+				let geometry = new THREE.BoxGeometry(50, 50, 50);
+				console.log(texture);
+				//材质
+				let material = new THREE.MeshPhongMaterial({
+					color: 0xff0000,
+					map: texture,
+					normalMap: texture, //法线贴图
+					//设置深浅程度，默认值(1,1)。
+					normalScale: new THREE.Vector2(0.1, ),
+				}); //材质对象Material
+				let mesh = new THREE.Mesh(geometry, material); //网格模型对象Mesh
+				mesh.position.x = -100;
+				mesh.position.y = -50;
+				scene.add(mesh);
+
+				render();
+			});
+
+			var geometry9 = new THREE.SphereGeometry(40, 25, 25); //球体
+			// TextureLoader创建一个纹理加载器对象，可以加载图片作为几何体纹理
+			var textureLoader = new THREE.TextureLoader();
+			// 加载纹理贴图
+			var texture9 = textureLoader.load('./js/face.jpg');
+			// 加载法线贴图
+			var textureNormal = textureLoader.load('./js/normalFace.png');
+			var material9 = new THREE.MeshPhongMaterial({
+				map: texture9, // 普通颜色纹理贴图
+				specular: 0x222222,
+				shininess: 35,
+				normalMap: textureNormal, //法线贴图
+				//设置深浅程度，默认值(1,1)。
+				normalScale: new THREE.Vector2(1, 1),
+			}); //材质对象Material
+			let mesh9 = new THREE.Mesh(geometry9, material9); //网格模型对象Mesh
+			mesh9.castShadow = true;
+			mesh9.receiveShadow = true;
+			scene.add(mesh9);
 
 			var width = window.innerWidth;
 			var height = window.innerHeight;
@@ -49,10 +243,10 @@
 				var T1 = new Date();
 				var t = T1 - T0;
 				T0 = T1;
-				//requestAnimationFrame(render);
+				requestAnimationFrame(render);
 				renderer.render(scene, camera);
 			}
-			render();
+			//render();
 
 			var controls = new THREE.OrbitControls(camera, renderer.domElement);
 			controls.addEventListener('change', render);
